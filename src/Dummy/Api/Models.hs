@@ -39,19 +39,13 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
     deriving Eq Show Generic
   Scroll
     name T.Text
-    deriving Eq Show Generic
-  BoardScroll
-    board BoardId eq
-    scroll ScrollId eq
-    deriving Eq Show Generic
-  ScrollCard
-    scroll ScrollId eq
-    card CardId eq
+    boardId BoardId eq
     deriving Eq Show Generic
   Card
     title T.Text
     description T.Text
-    assignedTo UserId
+    assignedTo UserId eq
+    scrollId ScrollId eq
     deriving Eq Show Generic
 |]
 
@@ -86,14 +80,19 @@ runDb query = do
 -- userToPerson User{..} = Person { name = userName, email = userEmail }
 
 userToUpdate :: User -> [Update User]
-userToUpdate u = [UserFullName =. (userFullName u), UserEmail =. (userEmail u)]
+userToUpdate u = [ UserFullName =. (userFullName u),
+                   UserEmail =. (userEmail u)]
 
--- boardToUpdate :: Board -> [Update Board]
--- boardToUpdate b = [BoardName =. (boardName b), BoardScrolls =. (boardScrolls b)]
+boardToUpdate :: Board -> [Update Board]
+boardToUpdate b = [BoardName =. (boardName b)]
 
--- scrollToUpdate :: Scroll -> [Update Scroll]
--- scrollToUpdate s = [ScrollName =. (scrollName s), ScrollCards =. (scrollCards s)]
+scrollToUpdate :: Scroll -> [Update Scroll]
+scrollToUpdate s = [ ScrollName =. (scrollName s),
+                     ScrollBoardId =. (scrollBoardId s)]
 
--- cardToUpdate :: Card -> [Update Card]
--- cardToUpdate c = [CardTitle =. (cardTitle c), CardDescription =. (cardDescription c), CardAssignedTo =. (cardAssignedTo c)]
+cardToUpdate :: Card -> [Update Card]
+cardToUpdate c = [ CardTitle =. (cardTitle c),
+                   CardDescription =. (cardDescription c),
+                   CardAssignedTo =. (cardAssignedTo c),
+                   CardScrollId =. (cardScrollId c)]
 

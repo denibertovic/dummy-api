@@ -23,23 +23,25 @@ import           Dummy.Api.Models
 type UserAPI = Get '[JSON] [User]
     :<|> Capture "id" Int64 :> Get '[JSON] User
     :<|> Capture "id" Int64 :> Delete '[] ()
-    :<|> ReqBody '[JSON] User :> Post '[JSON] Int64
+    :<|> ReqBody '[JSON] User :> Post '[JSON] User
     :<|> Capture "id" Int64
          :> ReqBody '[JSON] User
-         :> Post '[JSON] ()
+         :> Post '[JSON] User
 
 type BoardAPI = Get '[JSON] [Board]
+    :<|> Capture "id" Int64 :> "scrolls" :> Get '[JSON] [Scroll]
     :<|> Capture "id" Int64 :> Get '[JSON] Board
     :<|> Capture "id" Int64 :> Delete '[] ()
-    :<|> ReqBody '[JSON] Board :> Post '[JSON] Int64
+    :<|> ReqBody '[JSON] Board :> Post '[JSON] Board
     :<|> Capture "id" Int64
          :> ReqBody '[JSON] Board
          :> Post '[JSON] Board
 
 type ScrollAPI = Get '[JSON] [Scroll]
+    :<|> Capture "id" Int64 :> "cards" :> Get '[JSON] [Card]
     :<|> Capture "id" Int64 :> Get '[JSON] Scroll
     :<|> Capture "id" Int64 :> Delete '[] ()
-    :<|> ReqBody '[JSON] Scroll :> Post '[JSON] Int64
+    :<|> ReqBody '[JSON] Scroll :> Post '[JSON] Scroll
     :<|> Capture "id" Int64
          :> ReqBody '[JSON] Scroll
          :> Post '[JSON] Scroll
@@ -47,7 +49,7 @@ type ScrollAPI = Get '[JSON] [Scroll]
 type CardAPI = Get '[JSON] [Card]
     :<|> Capture "id" Int64 :> Get '[JSON] Card
     :<|> Capture "id" Int64 :> Delete '[] ()
-    :<|> ReqBody '[JSON] Card :> Post '[JSON] Int64
+    :<|> ReqBody '[JSON] Card :> Post '[JSON] Card
     :<|> Capture "id" Int64
                  :> ReqBody '[JSON] Card
                  :> Post '[JSON] Card
@@ -67,6 +69,7 @@ userServer = listUsers
 
 boardServer :: ServerT BoardAPI AppM
 boardServer = listBoards
+        :<|> getBoardScrolls
         :<|> getBoard
         :<|> deleteBoard
         :<|> createBoard
@@ -74,6 +77,7 @@ boardServer = listBoards
 
 scrollServer :: ServerT ScrollAPI AppM
 scrollServer = listScrolls
+        :<|> getScrollCards
         :<|> getScroll
         :<|> deleteScroll
         :<|> createScroll
@@ -102,8 +106,8 @@ dummyAPI = Proxy
 app :: Config -> Application
 app cfg = serve dummyAPI (readerDummyServer cfg)
 
--- User functions
--- userToPerson User{..} = Person { name = userName, email = userEmail  }
+-- User controllers
+
 listUsers :: AppM [User]
 listUsers = do
     users :: [Entity User] <- runDb $ selectList [] []
@@ -111,80 +115,140 @@ listUsers = do
     return us
 
 getUser :: Int64 -> AppM User
-getUser u = do
-    user <- runDb $ get (toSqlKey u)
+getUser uid = do
+    user <- runDb $ get (toSqlKey uid)
     case user of
         Nothing -> lift $ left err404
         Just u -> return u
 
-createUser :: User -> AppM Int64
+createUser :: User -> AppM User
 createUser user = do
-    newUser <- runDb $ insert user
-    return $ fromSqlKey newUser
+    newUserId <- runDb $ insert user
+    return $ user
 
-updateUser :: Int64 -> User ->  AppM ()
+updateUser :: Int64 -> User ->  AppM User
 updateUser i u = do
     user <- runDb $ get ((toSqlKey i) :: Key User)
     case user of
         Nothing -> lift $ left err404
         Just x ->  do
             runDb $ update (toSqlKey i) $ userToUpdate u
+            return u
 
 deleteUser :: Int64 -> AppM ()
-deleteUser u = do
-    runDb $ delete ((toSqlKey u) :: Key User)
+deleteUser uid = do
+    runDb $ delete ((toSqlKey uid) :: Key User)
 
--- Board functions
+-- Board controllers
 
 listBoards :: AppM [Board]
-listBoards = undefined
+listBoards = do
+        boards :: [Entity Board] <- runDb $ selectList [] []
+        let bs = map (\(Entity _ y) -> y) boards
+        return bs
+
+getBoardScrolls :: Int64 -> AppM [Scroll]
+getBoardScrolls bid = do
+        scrolls <- runDb $ selectList [ScrollBoardId ==. (toSqlKey bid)] []
+        let ss = map (\(Entity _ y) -> y) scrolls
+        return ss
 
 getBoard :: Int64 -> AppM Board
-getBoard = undefined
+getBoard bid = do
+        board <- runDb $ get (toSqlKey bid)
+        case board of
+            Nothing -> lift $ left err404
+            Just b -> return b
 
-createBoard :: Board -> AppM Int64
-createBoard = undefined
+createBoard :: Board -> AppM Board
+createBoard b = do
+        newBoardId <- runDb $ insert b
+        return b
 
 updateBoard :: Int64 -> Board -> AppM Board
-updateBoard = undefined
+updateBoard i b = do
+        board <- runDb $ get ((toSqlKey i) :: Key Board)
+        case board of
+            Nothing -> lift $ left err404
+            Just _ -> do
+                runDb $ update (toSqlKey i) $ boardToUpdate b
+                return b
 
 deleteBoard :: Int64 -> AppM ()
-deleteBoard = undefined
+deleteBoard bid = do
+    runDb $ delete ((toSqlKey bid) :: Key Board)
 
 
--- Scroll functions
+-- Scroll controllers
 
 listScrolls :: AppM [Scroll]
-listScrolls = undefined
+listScrolls = do
+        scrolls :: [Entity Scroll] <- runDb $ selectList [] []
+        let ss = map (\(Entity _ y) -> y) scrolls
+        return ss
+
+getScrollCards :: Int64 -> AppM [Card]
+getScrollCards sid = do
+        cards <- runDb $ selectList [CardScrollId ==. (toSqlKey sid)] []
+        let cs = map (\(Entity _ y) -> y) cards
+        return cs
 
 getScroll :: Int64 -> AppM Scroll
-getScroll = undefined
+getScroll sid = do
+        scroll <- runDb $ get (toSqlKey sid)
+        case scroll of
+            Nothing -> lift $ left err404
+            Just s -> return s
 
-createScroll :: Scroll -> AppM Int64
-createScroll = undefined
+createScroll :: Scroll -> AppM Scroll
+createScroll s = do
+        newScrollId <- runDb $ insert s
+        return s
 
 updateScroll :: Int64 -> Scroll -> AppM Scroll
-updateScroll = undefined
+updateScroll i s = do
+        scroll <- runDb $ get ((toSqlKey i) :: Key Scroll)
+        case scroll of
+            Nothing -> lift $ left err404
+            Just _ -> do
+                runDb $ update (toSqlKey i) $ scrollToUpdate s
+                return s
 
 deleteScroll :: Int64 -> AppM ()
-deleteScroll = undefined
+deleteScroll sid = do
+        runDb $ delete ((toSqlKey sid) :: Key Scroll)
 
 
--- Card functions
+-- Card controllers
 
 listCards :: AppM [Card]
-listCards = undefined
+listCards = do
+        cards :: [Entity Card] <- runDb $ selectList [] []
+        let cs = map (\(Entity _ y) -> y) cards
+        return cs
 
 getCard :: Int64 -> AppM Card
-getCard = undefined
+getCard cid = do
+        card <- runDb $ get (toSqlKey cid)
+        case card of
+            Nothing -> lift $ left err404
+            Just c -> return c
 
-createCard :: Card -> AppM Int64
-createCard = undefined
+createCard :: Card -> AppM Card
+createCard c = do
+        newCardId <- runDb $ insert c
+        return c
 
 updateCard :: Int64 -> Card -> AppM Card
-updateCard = undefined
+updateCard i c = do
+        card <- runDb $ get ((toSqlKey i) :: Key Card)
+        case card of
+            Nothing -> lift $ left err404
+            Just _ -> do
+                runDb $ update (toSqlKey i) $ cardToUpdate c
+                return c
 
 deleteCard :: Int64 -> AppM ()
-deleteCard = undefined
-
+deleteCard cid = do
+        runDb $ delete ((toSqlKey cid) :: Key Card)
 
