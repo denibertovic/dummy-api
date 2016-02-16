@@ -1,5 +1,7 @@
 .PHONY = build run doc
 
+VERSION ?= $(shell grep "^version:" dummy-api.cabal | cut -d " " -f14)
+
 build:
 	@stack build
 
@@ -8,4 +10,8 @@ run:
 
 doc:
 	@stack runghc src/Dummy/Api/Docs.hs > docs/README.md
+
+image: build
+	@docker build -t denibertovic/dummy-api:${VERSION} .
+	@docker tag denibertovic/dummy-api:${VERSION} denibertovic/dummy-api:latest
 
