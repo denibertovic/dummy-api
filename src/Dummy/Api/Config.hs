@@ -43,5 +43,6 @@ envPool Development = 1
 envPool Production = 8
 
 connStr :: Environment -> ConnectionString
-connStr _ = "host=localhost dbname=postgres user=postgres password=postgres port=5432"
+connStr Test = "host=localhost dbname=postgres user=postgres password=postgres port=5432"
+connStr _ = "host=db dbname=postgres user=postgres password=postgres port=5432"
 
