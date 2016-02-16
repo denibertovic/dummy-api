@@ -2,6 +2,8 @@
 
 VERSION ?= $(shell grep "^version:" dummy-api.cabal | cut -d " " -f14)
 
+IMAGE_NAME=denibertovic/dummy-api
+
 build:
 	@stack build
 
@@ -12,6 +14,10 @@ doc:
 	@stack runghc src/Dummy/Api/Docs.hs > docs/README.md
 
 image: build
-	@docker build -t denibertovic/dummy-api:${VERSION} .
-	@docker tag denibertovic/dummy-api:${VERSION} denibertovic/dummy-api:latest
+	@docker build -t ${IMAGE_NAME}:${VERSION} .
+	@docker tag ${IMAGE_NAME}:${VERSION} ${IMAGE_NAME}:latest
+
+push: image
+	@docker push ${IMAGE_NAME}:${VERSION}
+	@docker push ${IMAGE_NAME}:latest
 
