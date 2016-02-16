@@ -13,7 +13,9 @@ publicly available.
 
 ## How to run
 
-TODO
+1. Install [docker](https://docs.docker.com/engine/installation/)
+2. Install [docker-compose](https://docs.docker.com/compose/install/)
+3. Run: `docker-compose up`
 
 ## API Docs
 
