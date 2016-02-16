@@ -22,7 +22,7 @@ import           Dummy.Api.Models
 
 type UserAPI = Get '[JSON] [User]
     :<|> Capture "id" Int64 :> Get '[JSON] User
-    :<|> Capture "id" Int64 :> Delete '[] ()
+    :<|> Capture "id" Int64 :> Delete '[JSON] ()
     :<|> ReqBody '[JSON] User :> Post '[JSON] User
     :<|> Capture "id" Int64
          :> ReqBody '[JSON] User
@@ -31,7 +31,7 @@ type UserAPI = Get '[JSON] [User]
 type BoardAPI = Get '[JSON] [Board]
     :<|> Capture "id" Int64 :> "scrolls" :> Get '[JSON] [Scroll]
     :<|> Capture "id" Int64 :> Get '[JSON] Board
-    :<|> Capture "id" Int64 :> Delete '[] ()
+    :<|> Capture "id" Int64 :> Delete '[JSON] ()
     :<|> ReqBody '[JSON] Board :> Post '[JSON] Board
     :<|> Capture "id" Int64
          :> ReqBody '[JSON] Board
@@ -40,7 +40,7 @@ type BoardAPI = Get '[JSON] [Board]
 type ScrollAPI = Get '[JSON] [Scroll]
     :<|> Capture "id" Int64 :> "cards" :> Get '[JSON] [Card]
     :<|> Capture "id" Int64 :> Get '[JSON] Scroll
-    :<|> Capture "id" Int64 :> Delete '[] ()
+    :<|> Capture "id" Int64 :> Delete '[JSON] ()
     :<|> ReqBody '[JSON] Scroll :> Post '[JSON] Scroll
     :<|> Capture "id" Int64
          :> ReqBody '[JSON] Scroll
@@ -48,7 +48,7 @@ type ScrollAPI = Get '[JSON] [Scroll]
 
 type CardAPI = Get '[JSON] [Card]
     :<|> Capture "id" Int64 :> Get '[JSON] Card
-    :<|> Capture "id" Int64 :> Delete '[] ()
+    :<|> Capture "id" Int64 :> Delete '[JSON] ()
     :<|> ReqBody '[JSON] Card :> Post '[JSON] Card
     :<|> Capture "id" Int64
                  :> ReqBody '[JSON] Card

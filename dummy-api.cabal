@@ -18,6 +18,7 @@ library
   exposed-modules:     Dummy.Api.Api
                      , Dummy.Api.Models
                      , Dummy.Api.Config
+                     , Dummy.Api.Docs
   build-depends:       base >= 4.7 && < 5
                      , esqueleto
                      , uuid
@@ -28,8 +29,10 @@ library
                      , persistent-template
                      , persistent-postgresql
                      , persistent-sqlite
-                     , servant
-                     , servant-server
+                     , servant >= 0.4.4.6
+                     , servant-server >= 0.4.4.6
+                     , servant-docs >= 0.4.4.6
+                     , http-types
                      , mtl
                      , either
                      , aeson
