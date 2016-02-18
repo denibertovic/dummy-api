@@ -68,17 +68,6 @@ runDb query = do
     pool <- asks getPool
     liftIO $ runSqlPool query pool
 
--- data Person = Person
---     { name :: String
---     , email :: String
---     } deriving (Eq, Show, Generic)
-
--- instance ToJSON Person
--- instance FromJSON Person
-
--- userToPerson :: User -> Person
--- userToPerson User{..} = Person { name = userName, email = userEmail }
-
 userToUpdate :: User -> [Update User]
 userToUpdate u = [ UserFullName =. (userFullName u),
                    UserEmail =. (userEmail u)]
