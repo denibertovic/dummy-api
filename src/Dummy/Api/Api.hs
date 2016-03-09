@@ -10,7 +10,7 @@ import           Control.Monad.Trans.Either  (EitherT, left)
 import           Data.Int                    (Int64)
 import           Database.Persist
 import           Database.Persist.Postgresql (Entity (..), fromSqlKey, insert,
-                                              selectList, (==.))
+                                              rawSql, selectList, (<-.), (==.))
 import           Database.Persist.Sql
 import           Network.Wai                 (Application)
 import           Servant
@@ -30,6 +30,7 @@ type UserAPI = Get '[JSON] [User]
 
 type BoardAPI = Get '[JSON] [Board]
     :<|> Capture "id" Int64 :> "scrolls" :> Get '[JSON] [Scroll]
+    :<|> Capture "id" Int64 :> "cards" :> Get '[JSON] [Card]
     :<|> Capture "id" Int64 :> Get '[JSON] Board
     :<|> Capture "id" Int64 :> Delete '[JSON] ()
     :<|> ReqBody '[JSON] Board :> Post '[JSON] Board
@@ -70,6 +71,7 @@ userServer = listUsers
 boardServer :: ServerT BoardAPI AppM
 boardServer = listBoards
         :<|> getBoardScrolls
+        :<|> getBoardCards
         :<|> getBoard
         :<|> deleteBoard
         :<|> createBoard
@@ -152,6 +154,14 @@ getBoardScrolls bid = do
         scrolls <- runDb $ selectList [ScrollBoardId ==. (toSqlKey bid)] []
         let ss = map (\(Entity _ y) -> y) scrolls
         return ss
+
+getBoardCards :: Int64 -> AppM [Card]
+getBoardCards bid = do
+        scrolls <- runDb $ selectList [ScrollBoardId ==. (toSqlKey bid)] []
+        let ss = map (\(Entity x _) -> x) scrolls
+        cards <- runDb $ selectList [CardScrollId <-. ss] []
+        let cc = map (\(Entity _ y) -> y) cards
+        return cc
 
 getBoard :: Int64 -> AppM Board
 getBoard bid = do

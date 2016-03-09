@@ -115,6 +115,27 @@
 {"boardName":"Board Name"}
 ```
 
+## GET /boards/:id/cards
+
+#### Captures:
+
+- *id*: (integer) ID of the Resource
+
+#### Response:
+
+- Status code 200
+- Headers: []
+
+- Supported content types are:
+
+    - `application/json`
+
+- Response body as below.
+
+```javascript
+[{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}]
+```
+
 ## GET /boards/:id/scrolls
 
 #### Captures:
