@@ -17,7 +17,8 @@ import           Dummy.Api.Config            (Config (..), Environment (..),
                                               defaultConfig, makePool,
                                               setLogger)
 
-import           Dummy.Api.Models            (doMigrations)
+import           Dummy.Api.Models            (doDataMigrations, doMigrations)
+
 
 
 main :: IO ()
@@ -28,6 +29,7 @@ main = do
     let cfg = defaultConfig { getPool = pool, getEnv = env }
         logger = setLogger env
     retry 5 $ retryDbConnection $ runSqlPool doMigrations pool
+    runSqlPool doDataMigrations pool
     run port $ logger $ app cfg
 
 lookupSetting :: Read a => String -> a -> IO a

@@ -36,6 +36,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
     deriving Eq Show Generic
   Board
     name T.Text
+    UniqueName name
     deriving Eq Show Generic
   Scroll
     name T.Text
@@ -60,6 +61,21 @@ instance FromJSON Scroll
 
 instance ToJSON Card
 instance FromJSON Card
+
+insertInitialUsers = do
+    johnId <- insertBy $ User "John Doe" "john@example.com"
+    janeId <- insertBy $ User "Jane Doe" "jane@example.com"
+    return ()
+
+inserInitialBoard = do
+    boardId <- insertBy $ Board "Default Board"
+    return ()
+
+doDataMigrations :: ReaderT SqlBackend IO ()
+doDataMigrations = do
+    _ <- inserInitialBoard
+    _ <- insertInitialUsers
+    return ()
 
 doMigrations :: ReaderT SqlBackend IO ()
 doMigrations = runMigration migrateAll
