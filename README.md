@@ -15,7 +15,7 @@ publicly available.
 
 1. Install [docker](https://docs.docker.com/engine/installation/)
 2. Install [docker-compose](https://docs.docker.com/compose/install/)
-3. Run: `docker-compose up`
+3. Run: `make run`
 
 ## API Docs
 
