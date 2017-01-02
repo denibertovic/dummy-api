@@ -1,4 +1,4 @@
-.PHONY = build run doc
+.PHONY: build run docs image push help
 
 
 PROJECT_NAME ?= $(shell grep "^name" dummy-api.cabal | cut -d " " -f17)
@@ -25,7 +25,7 @@ run:
 	@LOCAL_USER_ID=${LOCAL_USER_ID} docker-compose up
 
 ## Generate API docs
-doc:
+docs:
 	@stack runghc src/Dummy/Api/Docs.hs > docs/README.md
 
 ## Build docker image for distribution
