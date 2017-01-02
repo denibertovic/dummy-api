@@ -29,8 +29,9 @@ doc:
 	@stack runghc src/Dummy/Api/Docs.hs > docs/README.md
 
 ## Build docker image for distribution
-image: build
-	@docker build -t ${IMAGE_NAME}:${VERSION} .
+image:
+	@stack build
+	@docker build --build-arg BINARY_PATH=${BINARY_PATH_RELATIVE} -t ${IMAGE_NAME}:${VERSION} .
 	@docker tag ${IMAGE_NAME}:${VERSION} ${IMAGE_NAME}:latest
 
 ## Push docker image to hub
