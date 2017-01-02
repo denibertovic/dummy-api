@@ -1,15 +1,22 @@
-api:
+version: '2'
+
+services:
+  api:
+    build:
+      context: .
+      args:
+        - BINARY_PATH
     image: denibertovic/dummy-api
     ports:
-        - "8000:8000"
+      - "8000:8000"
     links:
-         - db
+      - db
     environment:
-        - ENV=Development
-        - PORT=8000
+      - ENV=Development
+      - PORT=8000
 
-db:
-  image: postgres:9.5
-  ports:
+  db:
+    image: postgres:9.5
+    ports:
       - 5432:5432
 
