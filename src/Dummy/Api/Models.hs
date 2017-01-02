@@ -16,6 +16,7 @@ import           Control.Monad.Reader        (ReaderT, asks, liftIO)
 import           Data.Aeson                  (FromJSON, ToJSON)
 import           Data.Text.Lazy              as T
 import           Database.Persist
+import Database.Persist.Sql (toSqlKey)
 import           Database.Persist.Postgresql (SqlBackend (..), runMigration,
                                               runSqlPool)
 import           Database.Persist.TH         (mkMigrate, mkPersist,
@@ -24,7 +25,6 @@ import           Database.Persist.TH         (mkMigrate, mkPersist,
 import           GHC.Generics                (Generic)
 
 import           Dummy.Api.Config
-
 
 type Email = T.Text
 
@@ -36,9 +36,10 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
     deriving Eq Show Generic
   Board
     name T.Text
-    UniqueName name
+    ownerId UserId eq
+    BoardUniqueness name ownerId
     deriving Eq Show Generic
-  Scroll
+  List
     name T.Text
     boardId BoardId eq
     deriving Eq Show Generic
@@ -46,7 +47,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
     title T.Text
     description T.Text
     assignedTo UserId eq
-    scrollId ScrollId eq
+    listId ListId eq
     deriving Eq Show Generic
 |]
 
@@ -56,25 +57,25 @@ instance FromJSON User
 instance ToJSON Board
 instance FromJSON Board
 
-instance ToJSON Scroll
-instance FromJSON Scroll
+instance ToJSON List
+instance FromJSON List
 
 instance ToJSON Card
 instance FromJSON Card
 
 insertInitialUsers = do
-    johnId <- insertBy $ User "John Doe" "john@example.com"
-    janeId <- insertBy $ User "Jane Doe" "jane@example.com"
-    return ()
+    Right jk <- insertBy $ User "John Doe" "john@example.com"
+    Right jak <- insertBy $ User "Jane Doe" "jane@example.com"
+    return (jk,  jak)
 
-inserInitialBoard = do
-    boardId <- insertBy $ Board "Default Board"
+inserInitialBoard iid = do
+    _ <- insertBy $ Board "Default Board" iid
     return ()
 
 doDataMigrations :: ReaderT SqlBackend IO ()
 doDataMigrations = do
-    _ <- inserInitialBoard
-    _ <- insertInitialUsers
+    (jk, jak) <- insertInitialUsers
+    _ <- inserInitialBoard jk
     return ()
 
 doMigrations :: ReaderT SqlBackend IO ()
@@ -91,13 +92,13 @@ userToUpdate u = [ UserFullName =. (userFullName u),
 boardToUpdate :: Board -> [Update Board]
 boardToUpdate b = [BoardName =. (boardName b)]
 
-scrollToUpdate :: Scroll -> [Update Scroll]
-scrollToUpdate s = [ ScrollName =. (scrollName s),
-                     ScrollBoardId =. (scrollBoardId s)]
+listToUpdate :: List -> [Update List]
+listToUpdate s = [ ListName =. (listName s),
+                   ListBoardId =. (listBoardId s)]
 
 cardToUpdate :: Card -> [Update Card]
 cardToUpdate c = [ CardTitle =. (cardTitle c),
                    CardDescription =. (cardDescription c),
                    CardAssignedTo =. (cardAssignedTo c),
-                   CardScrollId =. (cardScrollId c)]
+                   CardListId =. (cardListId c)]
 

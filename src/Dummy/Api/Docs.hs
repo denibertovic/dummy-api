@@ -18,7 +18,7 @@ import           Database.Persist.Sql    (toSqlKey)
 import           Network.HTTP.Types
 import           Network.Wai
 import           Servant.API
-import           Servant.Docs
+import           Servant.Docs hiding (List)
 import           Servant.Server
 
 import           Dummy.Api.Api
@@ -36,8 +36,8 @@ instance ToSample () () where
 john = User "John Doe" "john.doe@example.com"
 jane = User "Jane Doe" "jane.doe@example.com"
 
-board = Board "Sample Board"
-scroll = Scroll "Sample Scroll" (toSqlKey 1)
+board = Board "Sample Board" (toSqlKey 1)
+list = List "Sample List" (toSqlKey 1)
 card = Card "Sample title" "Sample description" (toSqlKey 1) (toSqlKey 1)
 
 
@@ -51,13 +51,13 @@ instance ToSample [Board] [Board] where
   toSample _ = Just [board]
 
 instance ToSample Board Board where
-  toSample _ = Just (Board "Board Name") -- example of output
+  toSample _ = Just (Board "Board Name" (toSqlKey 1)) -- example of output
 
-instance ToSample [Scroll] [Scroll] where
-  toSample _ = Just [scroll]
+instance ToSample [List] [List] where
+  toSample _ = Just [list]
 
-instance ToSample Scroll Scroll where
-  toSample _ = Just scroll
+instance ToSample List List where
+  toSample _ = Just list
 
 instance ToSample [Card] [Card] where
   toSample _ = Just [card]

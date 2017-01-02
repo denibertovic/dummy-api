@@ -12,7 +12,7 @@
 - Response body as below.
 
 ```javascript
-[{"boardName":"Sample Board"}]
+[{"boardName":"Sample Board","boardOwnerId":1}]
 ```
 
 ## POST /boards
@@ -26,7 +26,7 @@
 - Example: `application/json`
 
 ```javascript
-{"boardName":"Board Name"}
+{"boardName":"Board Name","boardOwnerId":1}
 ```
 
 #### Response:
@@ -41,7 +41,7 @@
 - Response body as below.
 
 ```javascript
-{"boardName":"Board Name"}
+{"boardName":"Board Name","boardOwnerId":1}
 ```
 
 ## DELETE /boards/:id
@@ -79,7 +79,7 @@
 - Response body as below.
 
 ```javascript
-{"boardName":"Board Name"}
+{"boardName":"Board Name","boardOwnerId":1}
 ```
 
 ## POST /boards/:id
@@ -97,7 +97,7 @@
 - Example: `application/json`
 
 ```javascript
-{"boardName":"Board Name"}
+{"boardName":"Board Name","boardOwnerId":1}
 ```
 
 #### Response:
@@ -112,7 +112,7 @@
 - Response body as below.
 
 ```javascript
-{"boardName":"Board Name"}
+{"boardName":"Board Name","boardOwnerId":1}
 ```
 
 ## GET /boards/:id/cards
@@ -133,10 +133,10 @@
 - Response body as below.
 
 ```javascript
-[{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}]
+[{"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title","cardListId":1}]
 ```
 
-## GET /boards/:id/scrolls
+## GET /boards/:id/lists
 
 #### Captures:
 
@@ -154,7 +154,7 @@
 - Response body as below.
 
 ```javascript
-[{"scrollName":"Sample Scroll","scrollBoardId":1}]
+[{"listBoardId":1,"listName":"Sample List"}]
 ```
 
 ## GET /cards
@@ -171,7 +171,7 @@
 - Response body as below.
 
 ```javascript
-[{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}]
+[{"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title","cardListId":1}]
 ```
 
 ## POST /cards
@@ -185,7 +185,7 @@
 - Example: `application/json`
 
 ```javascript
-{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}
+{"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title","cardListId":1}
 ```
 
 #### Response:
@@ -200,7 +200,7 @@
 - Response body as below.
 
 ```javascript
-{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}
+{"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title","cardListId":1}
 ```
 
 ## DELETE /cards/:id
@@ -238,7 +238,7 @@
 - Response body as below.
 
 ```javascript
-{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}
+{"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title","cardListId":1}
 ```
 
 ## POST /cards/:id
@@ -256,7 +256,7 @@
 - Example: `application/json`
 
 ```javascript
-{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}
+{"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title","cardListId":1}
 ```
 
 #### Response:
@@ -271,10 +271,10 @@
 - Response body as below.
 
 ```javascript
-{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}
+{"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title","cardListId":1}
 ```
 
-## GET /scrolls
+## GET /lists
 
 #### Response:
 
@@ -288,10 +288,10 @@
 - Response body as below.
 
 ```javascript
-[{"scrollName":"Sample Scroll","scrollBoardId":1}]
+[{"listBoardId":1,"listName":"Sample List"}]
 ```
 
-## POST /scrolls
+## POST /lists
 
 #### Request:
 
@@ -302,7 +302,7 @@
 - Example: `application/json`
 
 ```javascript
-{"scrollName":"Sample Scroll","scrollBoardId":1}
+{"listBoardId":1,"listName":"Sample List"}
 ```
 
 #### Response:
@@ -317,10 +317,10 @@
 - Response body as below.
 
 ```javascript
-{"scrollName":"Sample Scroll","scrollBoardId":1}
+{"listBoardId":1,"listName":"Sample List"}
 ```
 
-## DELETE /scrolls/:id
+## DELETE /lists/:id
 
 #### Captures:
 
@@ -337,7 +337,7 @@
 
 - No response body
 
-## GET /scrolls/:id
+## GET /lists/:id
 
 #### Captures:
 
@@ -355,10 +355,10 @@
 - Response body as below.
 
 ```javascript
-{"scrollName":"Sample Scroll","scrollBoardId":1}
+{"listBoardId":1,"listName":"Sample List"}
 ```
 
-## POST /scrolls/:id
+## POST /lists/:id
 
 #### Captures:
 
@@ -373,7 +373,7 @@
 - Example: `application/json`
 
 ```javascript
-{"scrollName":"Sample Scroll","scrollBoardId":1}
+{"listBoardId":1,"listName":"Sample List"}
 ```
 
 #### Response:
@@ -388,10 +388,10 @@
 - Response body as below.
 
 ```javascript
-{"scrollName":"Sample Scroll","scrollBoardId":1}
+{"listBoardId":1,"listName":"Sample List"}
 ```
 
-## GET /scrolls/:id/cards
+## GET /lists/:id/cards
 
 #### Captures:
 
@@ -409,7 +409,7 @@
 - Response body as below.
 
 ```javascript
-[{"cardScrollId":1,"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title"}]
+[{"cardAssignedTo":1,"cardDescription":"Sample description","cardTitle":"Sample title","cardListId":1}]
 ```
 
 ## GET /users
