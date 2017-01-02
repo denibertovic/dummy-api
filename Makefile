@@ -26,7 +26,7 @@ run:
 
 ## Generate API docs
 docs:
-	@stack runghc src/Dummy/Api/Docs.hs > docs/README.md
+	@stack runghc src/Dummy/Api/BuildDocs.hs > docs/README.md
 
 ## Build docker image for distribution
 image:

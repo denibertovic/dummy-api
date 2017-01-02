@@ -13,12 +13,17 @@
 module Dummy.Api.Models where
 
 import           Control.Monad.Reader        (ReaderT, asks, liftIO)
-import           Data.Aeson                  (FromJSON, ToJSON)
-import           Data.Text.Lazy              as T
+import           Data.Aeson                  (FromJSON, ToJSON,
+                                              genericParseJSON, genericToJSON,
+                                              object, parseJSON, toJSON, (.!=),
+                                              (.:), (.:?), (.=))
+import qualified Data.ByteString             as BS
+import           Data.Text                   as T
+import           Data.Text.Encoding          (decodeUtf8, encodeUtf8)
 import           Database.Persist
-import Database.Persist.Sql (toSqlKey)
 import           Database.Persist.Postgresql (SqlBackend (..), runMigration,
                                               runSqlPool)
+import           Database.Persist.Sql        (toSqlKey)
 import           Database.Persist.TH         (mkMigrate, mkPersist,
                                               persistLowerCase, share,
                                               sqlSettings)
@@ -32,6 +37,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
   User
     fullName T.Text
     email Email
+    password T.Text
     UniqueEmail email
     deriving Eq Show Generic
   Board
@@ -64,8 +70,8 @@ instance ToJSON Card
 instance FromJSON Card
 
 insertInitialUsers = do
-    Right jk <- insertBy $ User "John Doe" "john@example.com"
-    Right jak <- insertBy $ User "Jane Doe" "jane@example.com"
+    Right jk <- insertBy $ User "John Doe" "john@example.com" "password"
+    Right jak <- insertBy $ User "Jane Doe" "jane@example.com" "password"
     return (jk,  jak)
 
 inserInitialBoard iid = do
@@ -86,19 +92,19 @@ runDb query = do
     liftIO $ runSqlPool query pool
 
 userToUpdate :: User -> [Update User]
-userToUpdate u = [ UserFullName =. (userFullName u),
-                   UserEmail =. (userEmail u)]
+userToUpdate u = [UserFullName =. userFullName u,
+                  UserEmail =. userEmail u]
 
 boardToUpdate :: Board -> [Update Board]
-boardToUpdate b = [BoardName =. (boardName b)]
+boardToUpdate b = [BoardName =. boardName b]
 
 listToUpdate :: List -> [Update List]
-listToUpdate s = [ ListName =. (listName s),
-                   ListBoardId =. (listBoardId s)]
+listToUpdate s = [ListName =. listName s,
+                  ListBoardId =. listBoardId s]
 
 cardToUpdate :: Card -> [Update Card]
-cardToUpdate c = [ CardTitle =. (cardTitle c),
-                   CardDescription =. (cardDescription c),
-                   CardAssignedTo =. (cardAssignedTo c),
-                   CardListId =. (cardListId c)]
+cardToUpdate c = [CardTitle =. cardTitle c,
+                  CardDescription =. cardDescription c,
+                  CardAssignedTo =. cardAssignedTo c,
+                  CardListId =. cardListId c]
 
