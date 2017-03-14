@@ -11,6 +11,7 @@ import           Control.Concurrent          (threadDelay)
 import           Control.Exception           (SomeException, catch)
 import           Control.Exception.Extra     (retry)
 import           Control.Retry
+import           Servant.Auth.Server
 
 import           Dummy.Api.Api               (app)
 import           Dummy.Api.Config            (Config (..), Environment (..),
@@ -26,11 +27,13 @@ main = do
     env  <- lookupSetting "ENV" Test
     port <- lookupSetting "PORT" 8000
     pool <- makePool env
+    myKey <- generateKey
+    let jwtCfg = defaultJWTSettings myKey
     let cfg = defaultConfig { getPool = pool, getEnv = env }
         logger = setLogger env
     retry 5 $ retryDbConnection $ runSqlPool doMigrations pool
     runSqlPool doDataMigrations pool
-    run port $ logger $ app cfg
+    run port $ logger $ app cfg defaultCookieSettings jwtCfg
 
 lookupSetting :: Read a => String -> a -> IO a
 lookupSetting env def = do

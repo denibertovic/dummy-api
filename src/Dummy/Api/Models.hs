@@ -17,6 +17,8 @@ import           Data.Aeson                  (FromJSON, ToJSON,
                                               genericParseJSON, genericToJSON,
                                               object, parseJSON, toJSON, (.!=),
                                               (.:), (.:?), (.=))
+import qualified Data.Aeson                  as JSON
+
 import qualified Data.ByteString             as BS
 import           Data.Text                   as T
 import           Data.Text.Encoding          (decodeUtf8, encodeUtf8)
@@ -24,14 +26,36 @@ import           Database.Persist
 import           Database.Persist.Postgresql (SqlBackend (..), runMigration,
                                               runSqlPool)
 import           Database.Persist.Sql        (toSqlKey)
-import           Database.Persist.TH         (mkMigrate, mkPersist,
-                                              persistLowerCase, share,
-                                              sqlSettings)
+import           Database.Persist.TH         (derivePersistField, mkMigrate,
+                                              mkPersist, persistLowerCase,
+                                              share, sqlSettings)
 import           GHC.Generics                (Generic)
+import           Servant.Auth.Server
 
 import           Dummy.Api.Config
+import           Dummy.Api.Types
 
-type Email = T.Text
+data Login = Login {email :: Email, password :: T.Text}
+   deriving (Eq, Show, Read, Generic)
+
+instance ToJSON Login
+instance FromJSON Login
+
+newtype JsonError = JsonError String
+instance ToJSON JsonError where
+  toJSON (JsonError b) = object ["error" .= b]
+
+data Password = Password !T.Text | PasswordHidden deriving (Eq, Show, Read, Generic)
+
+instance ToJSON Password where
+  toJSON (Password p)   = object ["password" .= toJSON PasswordHidden]
+  toJSON PasswordHidden = JSON.String "***encrypted***"
+
+instance FromJSON Password where
+    parseJSON (JSON.Object o) = do
+        p <- o .: "password"
+        return $ Password p
+
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
   User
@@ -57,8 +81,17 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
     deriving Eq Show Generic
 |]
 
-instance ToJSON User
+instance ToJSON User where
+    toJSON u = object [ "userFullName" .= userFullName u
+                      , "userEmail" .= userEmail u
+                      , "userPassword" .= PasswordHidden
+                      ]
+
+
 instance FromJSON User
+
+instance ToJWT User
+instance FromJWT User
 
 instance ToJSON Board
 instance FromJSON Board
@@ -70,8 +103,8 @@ instance ToJSON Card
 instance FromJSON Card
 
 insertInitialUsers = do
-    Right jk <- insertBy $ User "John Doe" "john@example.com" "password"
-    Right jak <- insertBy $ User "Jane Doe" "jane@example.com" "password"
+    Right jk <- insertBy $ User "John Doe" (Email "john@example.com") "password"
+    Right jak <- insertBy $ User "Jane Doe" (Email "jane@example.com") "password"
     return (jk,  jak)
 
 inserInitialBoard iid = do
